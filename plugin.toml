@@ -1,8 +1,8 @@
-id = "trans.pal"
+id = "zaojiaoci.transpal"
 name = "TransPal Translate"
 version = "0.1.0"
 description = "Translate selected text in place, explain identifiers, generate camelCase names. Free web sources (Youdao/Google) with failover, offline ECDICT dictionary fallback, optional AI (DeepSeek or any OpenAI-compatible endpoint)."
-authors = ["TransPal contributors"]
+authors = ["zaojiaoci"]
 license = "MIT"
 change-notes = "0.1.0 — 首个版本：选中文本翻译、变量名解释、中文命名生成。"
 categories = ["tools"]
