@@ -2,3 +2,4 @@
 /dist
 Cargo.lock
 .cargo/config.toml
+upstream/
