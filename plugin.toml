@@ -1,0 +1,64 @@
+id = "trans.pal"
+name = "TransPal Translate"
+version = "0.1.0"
+description = "Translate selected text in place, explain identifiers, generate camelCase names. Free web sources (Youdao/Google) with failover, offline ECDICT dictionary fallback, optional AI (DeepSeek or any OpenAI-compatible endpoint)."
+authors = ["TransPal contributors"]
+license = "MIT"
+change-notes = "0.1.0 — 首个版本：选中文本翻译、变量名解释、中文命名生成。"
+categories = ["tools"]
+engines.openidea = "^1.0"
+wasm = "dist/plugin.wasm"
+activation = ["on-command:*"]
+
+[capabilities]
+required = ["editor.read", "project.read", "net:fanyi.youdao.com", "net:translate.googleapis.com"]
+optional = ["editor.write", "net:api.deepseek.com", "net:localhost", "secrets", "storage"]
+
+[[contributes.commands]]
+id = "translate"
+title = "TransPal: 翻译选中文本"
+category = "TransPal"
+
+
+[[contributes.commands]]
+id = "name-explain"
+title = "TransPal: 变量名译成中文"
+category = "TransPal"
+
+
+[[contributes.commands]]
+id = "name-from-chinese"
+title = "TransPal: 中文命名（替换为 camelCase）"
+category = "TransPal"
+
+
+[[contributes.menus]]
+menu = "editor.context"
+command = "translate"
+
+[[contributes.menus]]
+menu = "editor.context"
+command = "name-explain"
+
+[[contributes.menus]]
+menu = "editor.context"
+command = "name-from-chinese"
+
+[[contributes.keymaps]]
+command = "translate"
+key = "Alt+T"
+
+[[contributes.views]]
+id = "results"
+title = "翻译结果"
+location = "right"
+web = "web/index.html"
+
+[contributes.settings]
+title = "TransPal 翻译助手"
+schema = "settings.schema.json"
+
+[[contributes.secrets]]
+name = "deepseek-key"
+label = "AI 翻译 API Key"
+description = "DeepSeek 等 OpenAI 兼容接口的密钥。不填也能用内置离线词典。"

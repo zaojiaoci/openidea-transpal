@@ -1,0 +1,26 @@
+{
+  "properties": {
+    "hover": {
+      "type": "boolean",
+      "title": "悬停显示译文（鼠标停在刚翻译的词上看浮层）",
+      "default": true
+    },
+    "source": {
+      "type": "string",
+      "title": "翻译源（auto=配了密钥用 AI，否则免费接口；free=免费模式，配了密钥也不用 AI；ai=仅 AI；web=仅免费接口；dict=仅词典）",
+      "enum": ["auto", "free", "ai", "web", "dict"],
+      "default": "auto"
+    },
+    "endpoint": {
+      "type": "string",
+      "title": "OpenAI 兼容接口地址",
+      "description": "默认 DeepSeek，可填任何 OpenAI 兼容端点",
+      "default": "https://api.deepseek.com"
+    },
+    "model": {
+      "type": "string",
+      "title": "模型名称",
+      "default": "deepseek-chat"
+    }
+  }
+}

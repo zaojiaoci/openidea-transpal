@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root { color-scheme: inherit; }
+  body {
+    margin: 0;
+    padding: 10px;
+    font-family: var(--openidea-font-ui, system-ui, sans-serif);
+    font-size: var(--openidea-font-size, 13px);
+    color: var(--openidea-fg, #ccc);
+    background: var(--openidea-bg, transparent);
+  }
+  .empty { color: var(--openidea-fg-muted, #888); padding: 20px 8px; line-height: 1.6; }
+  .card {
+    border: 1px solid var(--openidea-border, #333);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    background: var(--openidea-bg-elevated, rgba(127,127,127,.08));
+  }
+  .src { color: var(--openidea-fg-muted, #888); font-size: 12px; margin-bottom: 2px; word-break: break-all; }
+  .out { font-size: 14px; line-height: 1.5; word-break: break-all; white-space: pre-wrap; }
+  .meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .via {
+    font-size: 11px; color: var(--openidea-fg-muted, #888);
+    border: 1px solid var(--openidea-border, #333); border-radius: 4px; padding: 0 5px;
+  }
+  button {
+    font-size: 11px; padding: 1px 8px; cursor: pointer;
+    color: var(--openidea-fg, #ccc);
+    background: transparent;
+    border: 1px solid var(--openidea-border, #333); border-radius: 4px;
+  }
+  button:hover { background: var(--openidea-bg-hover, rgba(127,127,127,.15)); }
+</style>
+</head>
+<body>
+<div id="list" class="empty">还没有翻译记录。选中文字后右键「翻译选中文本」，结果会显示在这里。</div>
+<script>
+  var list = document.getElementById('list');
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function copy(text, btn) {
+    var done = function () { btn.textContent = '已复制'; setTimeout(function () { btn.textContent = '复制'; }, 1200); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(); });
+    } else fallback();
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      ta.remove();
+    }
+  }
+
+  function render(entries) {
+    if (!Array.isArray(entries) || !entries.length) return;
+    list.className = '';
+    list.innerHTML = '';
+    entries.forEach(function (e) {
+      if (!e || typeof e.out !== 'string') return;
+      var card = document.createElement('div');
+      card.className = 'card';
+      var html = '';
+      if (e.text) html += '<div class="src">' + esc(e.text) + '</div>';
+      html += '<div class="out">' + esc(e.out) + '</div>';
+      html += '<div class="meta"><span class="via">' + esc(e.via || '翻译') + '</span>';
+      html += '<button type="button">复制</button></div>';
+      card.innerHTML = html;
+      card.querySelector('button').addEventListener('click', function () { copy(e.out, this); });
+      list.appendChild(card);
+    });
+  }
+
+  if (window.openidea && window.openidea.onMessage) {
+    window.openidea.onMessage(function (message) {
+      try { render(JSON.parse(message)); } catch (e) {}
+    });
+  }
+</script>
+</body>
+</html>
