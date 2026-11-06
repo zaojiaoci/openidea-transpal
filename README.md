@@ -1,5 +1,9 @@
 # TransPal Translate
 
+**TransPal Translate** is a free translation plugin for [OpenIDEA](https://github.com/l0ng-ai/openidea): translate the selection or the word at the cursor, explain identifiers in Chinese, and turn Chinese into camelCase names. It works out of the box with free web sources (Youdao / Google) plus an offline ECDICT dictionary, and upgrades to AI translation with any OpenAI-compatible key (DeepSeek, Kimi, local Ollama…). Results appear as a hover overlay, status bar item, balloon, and a dock panel. [中文说明见下](#功能)。
+
+---
+
 [OpenIDEA](https://github.com/l0ng-ai/openidea) 插件：选中即译、变量名中英互译、中文命名生成。
 零配置可用（有道/谷歌免费接口 + 离线词典兜底），配置一个 OpenAI 兼容接口（DeepSeek / Kimi / 本地 Ollama…）后自动升级为 AI 翻译。
 
@@ -28,12 +32,14 @@
 ## 安装
 
 ```sh
-# 开发/自建
 cargo install --locked --git https://github.com/l0ng-ai/openidea ide-host --bin openidea-plugin
-cd openidea-trans
+git clone https://github.com/zaojiaoci/openidea-transpal
+cd openidea-transpal
 openidea-plugin build   # → dist/plugin.wasm
 openidea-plugin link    # 在 IDE 里：设置 › 插件 › 重新加载
 ```
+
+收录进 OpenIDEA 社区市场后可直接在 IDE 内安装（待办）。
 
 ## 权限说明
 
