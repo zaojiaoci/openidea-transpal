@@ -80,16 +80,20 @@ fn resolve_source() -> Source {
     }
 }
 
-/// 是否走 AI 源（变量名解释、中文命名走 AI 质量更好；否则本地策略）。
-fn use_ai() -> bool {
-    match setting_str("source", "auto").as_str() {
-        "ai" => true,
-        // free：变量名解释/中文命名也走本地策略，绝不调 AI
-        "dict" | "free" => false,
-        _ => host::secret_is_set(SECRET),
+/// 缓存键的源标签。AI 模式下端点或模型不同结果就不同，一并纳入。
+fn cache_tag() -> String {
+    match resolve_source() {
+        Source::Ai => format!(
+            "ai:{}:{}",
+            setting_str("endpoint", "https://api.deepseek.com"),
+            setting_str("model", "deepseek-chat")
+        ),
+        Source::Web => "web".into(),
+        Source::Dict => "dict".into(),
     }
 }
 
+/// 是否走 AI 源（变量名解释、中文命名走 AI 质量更好；否则本地策略）。
 fn has_cjk(s: &str) -> bool {
     s.chars().any(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c))
 }
@@ -202,7 +206,9 @@ fn show_in_status_bar(text: &str) {
 
 impl TransPal {
     fn translate_text(&mut self, text: &str, to_zh: bool) -> Result<String, Error> {
-        let key = cache_key("t", text, to_zh);
+        // 缓存键带翻译源（AI 还带 endpoint/model）：换源后同一文本应重新请求，
+        // 否则 dict 模式留下的结果会被 AI 模式原样复用
+        let key = cache_key(&format!("t:{}", cache_tag()), text, to_zh);
         if let Ok(Some(hit)) = host::storage::get(&key) {
             self.show_results(None, text, &hit);
             return Ok(hit);
@@ -324,17 +330,18 @@ impl TransPal {
 
     fn name_explain(&mut self, ctx: &Invocation) -> Result<Option<String>, Error> {
         let (text, _) = grab_text(ctx)?;
-        let out = if use_ai() {
-            ai::chat_text(&format!(
+        let out = match resolve_source() {
+            Source::Ai => ai::chat_text(&format!(
                 "解释这个编程标识符的含义：先拆词，再逐词给出中文，最后一句话说明整体含义：\n{text}"
-            ))?
-        } else {
-            let words = naming::split_identifier(&text);
-            let zh: Vec<String> = words
-                .iter()
-                .map(|w| dict::word_zh(w).unwrap_or(w.as_str()).to_string())
-                .collect();
-            zh.join(" ")
+            ))?,
+            Source::Web | Source::Dict => {
+                let words = naming::split_identifier(&text);
+                let zh: Vec<String> = words
+                    .iter()
+                    .map(|w| dict::word_zh(w).unwrap_or(w.as_str()).to_string())
+                    .collect();
+                zh.join(" ")
+            }
         };
         notify_info("TransPal 变量名", &out);
         Ok(None)
@@ -352,12 +359,13 @@ impl TransPal {
         if !has_cjk(&text) {
             return Err("请选中中文文本再执行中文命名".into());
         }
-        let camel = if use_ai() {
-            ai::chat_text(&format!(
+        let camel = match resolve_source() {
+            Source::Ai => ai::chat_text(&format!(
                 "把下面的中文术语翻译成英文，作为编程标识符。只回复 camelCase 形式的标识符本身，不要任何其他内容：\n{text}"
-            ))?
-        } else {
-            self.web_or_dict_camel(&text)?
+            ))?,
+            // dict 模式承诺零网络：本地词典兜不住就报错指引，绝不触网
+            Source::Web => self.web_or_dict_camel(&text)?,
+            Source::Dict => dict::to_camel(&text)?,
         };
         let snake = naming::camel_to_snake(&camel);
         editor.apply_edits(doc.version, &[TextEdit { range: sel, text: camel.clone() }])?;
@@ -729,5 +737,80 @@ mod tests {
         host.open_editor("/project/a.rs", "rust", "let 余额 = 0;", &[(0, 4, 0, 6)]);
         let err = plugin.run_command("name-from-chinese", &host.invocation(), None).unwrap_err();
         assert_eq!(err, Error::Denied("editor.write".into()));
+    }
+
+    #[test]
+    fn dict_mode_naming_makes_no_network_requests() {
+        let mut plugin = TransPal::default();
+        // 网络权限全部授予：dict 模式的承诺是不用，而不是用不了
+        let host = MockHost::install().with_capabilities(&[
+            "editor.read",
+            "editor.write",
+            "storage",
+            "net:fanyi.youdao.com",
+            "net:api.deepseek.com",
+            "secrets",
+        ]);
+        host.set_secret("deepseek-key", "sk-test");
+        host.set_setting("source", "\"dict\"");
+        host.on_fetch(|r| panic!("dict 模式不应发起网络请求：{}", r.url));
+        host.open_editor("/project/a.rs", "rust", "let 余额 = 0;", &[(0, 4, 0, 6)]);
+        match plugin.run_command("name-from-chinese", &host.invocation(), None) {
+            Ok(_) => assert_eq!(host.editor_text(), "let balance = 0;"),
+            Err(e) => assert!(e.to_string().contains("词典"), "报错应来自词典而非网络：{e}"),
+        }
+        assert!(host.requests().is_empty(), "零网络请求");
+    }
+
+    #[test]
+    fn cache_respects_source_switch() {
+        let mut plugin = TransPal::default();
+        let host = MockHost::install().with_capabilities(&[
+            "editor.read",
+            "storage",
+            "net:fanyi.youdao.com",
+            "net:api.deepseek.com",
+            "secrets",
+        ]);
+        host.set_secret("deepseek-key", "sk-test");
+        let ai_calls = std::rc::Rc::new(std::cell::Cell::new(0u32));
+        let counter = ai_calls.clone();
+
+        // dict 模式先翻译：写入词典缓存
+        host.set_setting("source", "\"dict\"");
+        host.open_editor("/project/a.rs", "rust", "cache", &[(0, 0, 0, 5)]);
+        plugin.run_command("translate", &host.invocation(), None).unwrap();
+
+        // 切到 ai 模式再翻译同一文本：必须重新请求，不得复用词典缓存
+        host.set_setting("source", "\"ai\"");
+        host.on_fetch(move |r| {
+            assert!(r.url.starts_with("https://api.deepseek.com"), "应调 AI 而非在线源：{}", r.url);
+            counter.set(counter.get() + 1);
+            Ok(HttpResponse { status: 200, headers: vec![], body: canned("缓存（AI 译文）") })
+        });
+        plugin.run_command("translate", &host.invocation(), None).unwrap();
+        assert_eq!(ai_calls.get(), 1, "换源后应重新请求");
+        assert_eq!(host.notifications().last().unwrap().body, "缓存（AI 译文）");
+    }
+
+    #[test]
+    fn cache_respects_model_switch() {
+        let mut plugin = TransPal::default();
+        let host = MockHost::install()
+            .with_capabilities(&["editor.read", "storage", "net:api.deepseek.com", "secrets"]);
+        host.set_secret("deepseek-key", "sk-test");
+        host.set_setting("source", "\"ai\"");
+        let ai_calls = std::rc::Rc::new(std::cell::Cell::new(0u32));
+        let counter = ai_calls.clone();
+        host.on_fetch(move |_| {
+            counter.set(counter.get() + 1);
+            Ok(HttpResponse { status: 200, headers: vec![], body: canned("AI 译文") })
+        });
+        host.open_editor("/project/a.rs", "rust", "cache", &[(0, 0, 0, 5)]);
+        plugin.run_command("translate", &host.invocation(), None).unwrap();
+
+        host.set_setting("model", "\"deepseek-reasoner\"");
+        plugin.run_command("translate", &host.invocation(), None).unwrap();
+        assert_eq!(ai_calls.get(), 2, "换模型后同一文本应重新请求");
     }
 }
