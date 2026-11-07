@@ -89,7 +89,8 @@ fn cache_tag() -> String {
             setting_str("model", "deepseek-chat")
         ),
         Source::Web => "web".into(),
-        Source::Dict => "dict".into(),
+        // 词典随版本更新，缓存键带上版本，升级后不会回放旧词条
+        Source::Dict => format!("dict:{}", env!("CARGO_PKG_VERSION")),
     }
 }
 
@@ -442,12 +443,42 @@ mod tests {
     }
 
     #[test]
+    fn dict_mode_matches_documented_table() {
+        let mut plugin = TransPal::default();
+        let host = MockHost::install().with_capabilities(&["editor.read", "editor.write", "storage"]);
+        host.set_setting("source", "\"dict\"");
+
+        for (input, expected) in [
+            ("stringBuffer", "字符串 缓冲区"),
+            ("ctx", "上下文"),
+            ("values", "值"),
+            ("user-agent", "用户代理"),
+            ("user_agent", "用户代理"),
+            ("matrix", "矩阵"),
+            ("please report the error", "请 报告 那 错误"),
+            ("canary release", "灰度发布"),
+        ] {
+            let actual = plugin.translate_text(input, true).unwrap();
+            println!("{input:>26} => {actual}");
+            assert_eq!(actual, expected, "{input}");
+        }
+
+        host.open_editor("/project/a.rs", "rust", "getUserById", &[(0, 0, 0, 11)]);
+        plugin.run_command("name-explain", &host.invocation(), None).unwrap();
+        assert_eq!(host.notifications()[0].body, "获取 用户 按 标识");
+
+        host.open_editor("/project/a.rs", "rust", "let 缓存穿透 = 0;", &[(0, 4, 0, 8)]);
+        plugin.run_command("name-from-chinese", &host.invocation(), None).unwrap();
+        assert_eq!(host.editor_text(), "let cachePenetration = 0;");
+    }
+
+    #[test]
     fn dict_translate_reports_missing_word() {
         let mut plugin = TransPal::default();
         let host = MockHost::install().with_capabilities(&["editor.read", "storage"]);
         host.open_editor("/project/a.rs", "rust", "frobnicate", &[(0, 0, 0, 10)]);
         let err = plugin.run_command("translate", &host.invocation(), None).unwrap_err();
-        assert!(err.to_string().contains("词典里没有这个词"));
+        assert!(err.to_string().contains("离线词典没有收录"));
     }
 
     #[test]
@@ -572,17 +603,17 @@ mod tests {
             "editor.read",
             "storage",
             "net:api.deepseek.com",
-            "net:fanyi.youdao.com",
+            "net:aidemo.youdao.com",
             "secrets",
         ]);
         host.set_secret("deepseek-key", "sk-test");
         host.set_setting("source", "\"free\"");
         host.on_fetch(|r| {
-            assert_eq!(r.url, "https://fanyi.youdao.com/translate");
+            assert_eq!(r.url, "https://aidemo.youdao.com/trans");
             Ok(HttpResponse {
                 status: 200,
                 headers: vec![],
-                body: serde_json::json!({"translateResult":[{"tgt":"余额"}]}).to_string().into_bytes(),
+                body: serde_json::json!({"errorCode":"0","translation":["余额"]}).to_string().into_bytes(),
             })
         });
         host.open_editor("/project/a.rs", "rust", "balance", &[(0, 0, 0, 7)]);
@@ -595,7 +626,7 @@ mod tests {
         let mut plugin = TransPal::default();
         let host = MockHost::install()
             .with_capabilities(&["editor.read", "storage", "net:api.deepseek.com", "secrets"]);
-        host.on_fetch(|_| panic!("无 net:fanyi.youdao.com 权限应在 fetch 前被拒，不应触达 mock"));
+        host.on_fetch(|_| panic!("无 net:aidemo.youdao.com 权限应在 fetch 前被拒，不应触达 mock"));
         host.open_editor("/project/a.rs", "rust", "cache", &[(0, 0, 0, 5)]);
         plugin.run_command("translate", &host.invocation(), None).unwrap();
         assert_eq!(host.notifications()[0].body, "缓存");
@@ -605,17 +636,17 @@ mod tests {
     fn auto_mode_without_key_translates_sentences_via_web() {
         let mut plugin = TransPal::default();
         let host =
-            MockHost::install().with_capabilities(&["editor.read", "storage", "net:fanyi.youdao.com"]);
+            MockHost::install().with_capabilities(&["editor.read", "storage", "net:aidemo.youdao.com"]);
         host.on_fetch(|r| {
-            assert_eq!(r.url, "https://fanyi.youdao.com/translate");
+            assert_eq!(r.url, "https://aidemo.youdao.com/trans");
             let body = String::from_utf8(r.body.clone().unwrap()).unwrap();
-            assert!(body.starts_with("i=failed+to+acquire+lock"));
+            assert!(body.starts_with("q=failed+to+acquire+lock&from=Auto&to=zh-CHS"));
             Ok(HttpResponse {
                 status: 200,
                 headers: vec![],
                 body: serde_json::json!({
-                    "errorCode": 0,
-                    "translateResult": [[{"src": "x", "tgt": "获取锁失败"}, {"src": "y", "tgt": "：互斥锁已中毒"}]]
+                    "errorCode": "0",
+                    "translation": ["获取锁失败", "：互斥锁已中毒"]
                 })
                 .to_string()
                 .into_bytes(),
@@ -630,14 +661,14 @@ mod tests {
     fn chinese_naming_prefers_web_translation() {
         let mut plugin = TransPal::default();
         let host = MockHost::install()
-            .with_capabilities(&["editor.read", "editor.write", "storage", "net:fanyi.youdao.com"]);
+            .with_capabilities(&["editor.read", "editor.write", "storage", "net:aidemo.youdao.com"]);
         host.on_fetch(|_| {
             Ok(HttpResponse {
                 status: 200,
                 headers: vec![],
                 body: serde_json::json!({
-                    "errorCode": 0,
-                    "translateResult": [[{"src": "用户余额", "tgt": "user balance"}]]
+                    "errorCode": "0",
+                    "translation": ["user balance"]
                 })
                 .to_string()
                 .into_bytes(),
@@ -654,14 +685,14 @@ mod tests {
         let host = MockHost::install().with_capabilities(&[
             "editor.read",
             "storage",
-            "net:fanyi.youdao.com",
+            "net:aidemo.youdao.com",
             "net:translate.googleapis.com",
         ]);
         let urls = std::rc::Rc::new(std::cell::RefCell::new(Vec::new()));
         let log = urls.clone();
         host.on_fetch(move |r| {
             log.borrow_mut().push(r.url.clone());
-            if r.url.starts_with("https://fanyi.youdao.com") {
+            if r.url.starts_with("https://aidemo.youdao.com") {
                 Ok(HttpResponse { status: 500, headers: vec![], body: b"down".to_vec() })
             } else {
                 Ok(HttpResponse {
@@ -680,7 +711,7 @@ mod tests {
         plugin.run_command("translate", &host.invocation(), None).unwrap();
         assert_eq!(host.notifications()[1].body, "你好 人类");
         let urls = urls.borrow().clone();
-        assert!(urls[0].starts_with("https://fanyi.youdao.com"), "{urls:?}");
+        assert!(urls[0].starts_with("https://aidemo.youdao.com"), "{urls:?}");
         assert!(urls[1].starts_with("https://translate.googleapis.com"), "{urls:?}");
         assert!(urls[2].starts_with("https://translate.googleapis.com"), "{urls:?}");
     }
@@ -691,7 +722,7 @@ mod tests {
         let host = MockHost::install().with_capabilities(&[
             "editor.read",
             "storage",
-            "net:fanyi.youdao.com",
+            "net:aidemo.youdao.com",
             "net:translate.googleapis.com",
         ]);
         let calls = std::rc::Rc::new(std::cell::Cell::new(0u32));
@@ -747,7 +778,7 @@ mod tests {
             "editor.read",
             "editor.write",
             "storage",
-            "net:fanyi.youdao.com",
+            "net:aidemo.youdao.com",
             "net:api.deepseek.com",
             "secrets",
         ]);
@@ -768,7 +799,7 @@ mod tests {
         let host = MockHost::install().with_capabilities(&[
             "editor.read",
             "storage",
-            "net:fanyi.youdao.com",
+            "net:aidemo.youdao.com",
             "net:api.deepseek.com",
             "secrets",
         ]);

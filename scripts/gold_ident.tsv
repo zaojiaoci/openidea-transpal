@@ -1,0 +1,318 @@
+# 标识符英→中基准集：英文<TAB>期望中文<TAB>类别
+# 收的都是 ECDICT 通用首义会译错、或通用词典缺收的编程词。
+# 用途：python3 scripts/bench_dict.py --ident
+
+# 类型与语言
+string	字符串	type
+char	字符	type
+integer	整数	type
+float	浮点数	type
+double	双精度浮点数	type
+boolean	布尔值	type
+tuple	元组	type
+dict	字典	type
+vector	向量	type
+matrix	矩阵	type
+scalar	标量	type
+literal	字面量	type
+operand	操作数	type
+operator	运算符	type
+predicate	谓词	type
+lambda	匿名函数	type
+callback	回调	type
+generic	泛型	type
+nullable	可空	type
+optional	可选	type
+immutable	不可变	type
+mutable	可变	type
+const	常量	type
+decorator	装饰器	type
+annotation	注解	type
+primitive	基本类型	type
+wrapper	包装器	type
+adapter	适配器	type
+
+# 数据结构与并发
+edge	边	data
+semaphore	信号量	data
+volatile	易失	data
+deadlock	死锁	data
+record	记录	data
+cell	单元格	data
+constraint	约束	data
+delimiter	分隔符	data
+sequence	序列	data
+payload	载荷	data
+chunk	数据块	data
+blob	二进制大对象	data
+yield	产出	data
+batch	批处理	data
+throttle	限流	data
+election	选举	data
+
+# 网络
+endpoint	端点	net
+handler	处理器	net
+listener	监听器	net
+emitter	事件发射器	net
+proxy	代理	net
+packet	数据包	net
+frame	帧	net
+handshake	握手	net
+hostname	主机名	net
+mime	MIME 类型	net
+uri	URI	net
+url	URL	net
+api	接口	net
+status code	状态码	net
+user agent	用户代理	net
+access token	访问令牌	net
+refresh token	刷新令牌	net
+rate limit	限流	net
+circuit breaker	熔断器	net
+load balancer	负载均衡器	net
+message queue	消息队列	net
+event loop	事件循环	net
+
+# 存储与文件
+filepath	文件路径	storage
+filename	文件名	storage
+pathname	路径名	storage
+symlink	符号链接	storage
+mount	挂载	storage
+volume	卷	storage
+manifest	清单	storage
+artifact	构建产物	storage
+extension	扩展名	storage
+filesystem	文件系统	storage
+stdin	标准输入	storage
+stdout	标准输出	storage
+stderr	标准错误	storage
+snapshot	快照	storage
+
+# 安全
+nonce	随机数	security
+salt	盐值	security
+digest	摘要	security
+cipher	加密算法	security
+signature	签名	security
+credential	凭证	security
+revoke	吊销	security
+csrf	CSRF	security
+xss	XSS	security
+sql injection	SQL 注入	security
+access control	访问控制	security
+
+# 架构与部署
+container	容器	arch
+failover	故障转移	arch
+quorum	法定人数	arch
+region	地域	arch
+zone	可用区	arch
+sidecar	边车	arch
+service mesh	服务网格	arch
+ingress	入口	arch
+egress	出口	arch
+blue-green deployment	蓝绿部署	arch
+canary release	灰度发布	arch
+rolling release	滚动发布	arch
+feature flag	功能开关	arch
+cron	定时任务	arch
+daemon	守护进程	arch
+env	环境	arch
+
+# 数据与 AI
+dataset	数据集	ai
+epoch	轮次	ai
+gradient	梯度	ai
+tensor	张量	ai
+checkpoint	检查点	ai
+attention	注意力	ai
+transformer	Transformer	ai
+convolution	卷积	ai
+loss	损失	ai
+accuracy	准确率	ai
+precision	精确率	ai
+recall	召回率	ai
+threshold	阈值	ai
+ranking	排名	ai
+cohort	同期群	ai
+impression	曝光	ai
+campaign	投放活动	ai
+audience	受众	ai
+personalization	个性化	ai
+recommendation	推荐	ai
+inference	推理	ai
+
+# 界面
+click	点击	ui
+drag	拖拽	ui
+drop	放下	ui
+viewport	视口	ui
+responsive	响应式	ui
+animation	动画	ui
+font	字体	ui
+icon	图标	ui
+banner	横幅	ui
+grid	网格	ui
+form	表单	ui
+input	输入	ui
+output	输出	ui
+submit	提交	ui
+cancel	取消	ui
+confirm	确认	ui
+toast	轻提示	ui
+dialog	对话框	ui
+tooltip	提示	ui
+dropdown	下拉菜单	ui
+checkbox	复选框	ui
+radio	单选框	ui
+slider	滑块	ui
+spinner	加载指示器	ui
+skeleton	骨架屏	ui
+placeholder	占位符	ui
+tab	标签页	ui
+modal	模态框	ui
+breadcrumb	面包屑	ui
+pagination	分页	ui
+thumbnail	缩略图	ui
+
+# 通用动作与状态
+fetch	拉取	action
+load	加载	action
+store	存储	action
+run	运行	action
+start	启动	action
+stop	停止	action
+restart	重启	action
+call	调用	action
+invoke	调用	action
+handle	处理	action
+trigger	触发	action
+emit	发出	action
+subscribe	订阅	action
+publish	发布	action
+consume	消费	action
+produce	生产	action
+enqueue	入队	action
+dequeue	出队	action
+flush	刷新	action
+insert	插入	action
+upsert	更新或插入	action
+abort	中止	action
+pending	待处理	action
+running	运行中	action
+done	已完成	action
+enabled	启用	action
+disabled	禁用	action
+deprecated	已废弃	action
+draft	草稿	action
+archive	归档	action
+restore	恢复	action
+fork	派生	action
+rebase	变基	action
+stash	暂存	action
+clone	克隆	action
+checkout	检出	action
+push	推送	action
+pull	拉取	action
+diff	差异	action
+lint	静态检查	action
+trace	链路追踪	action
+span	跨度	action
+report	报表	action
+dashboard	仪表盘	action
+dirty	脏	action
+phantom	幻影	action
+optimistic	乐观	action
+pessimistic	悲观	action
+repeatable	可重复	action
+isolation	隔离	action
+affinity	亲和性	action
+inversion	反转	action
+matching	匹配	action
+evaluation	求值	action
+glob	通配符	action
+regex	正则	action
+stacktrace	堆栈跟踪	action
+required	必填	action
+paginate	分页	action
+
+# heldout：code_terms 里没有收的词，只靠 modern 反查/ECDICT 兜；
+# 用来验证「上下文选义」不是只对人工补过的词有效。
+idempotent	幂等	heldout
+orchestration	编排	heldout
+serverless	无服务器	heldout
+microservice	微服务	heldout
+declarative	声明式	heldout
+debounce	防抖	heldout
+bulkhead	舱壁	heldout
+allowlist	白名单	heldout
+blocklist	黑名单	heldout
+multi-tenant	多租户	heldout
+tracing	追踪	heldout
+sampling	采样	heldout
+postmortem	复盘	heldout
+livelock	活锁	heldout
+starvation	饥饿	heldout
+coroutine	协程	heldout
+reflection	反射	heldout
+polymorphism	多态	heldout
+fixture	夹具	heldout
+assertion	断言	heldout
+breakpoint	断点	heldout
+ownership	所有权	heldout
+churn	流失	heldout
+settlement	结算	heldout
+reconciliation	对账	heldout
+logistics	物流	heldout
+captcha	验证码	heldout
+deactivate	注销	heldout
+user-agent	用户代理	heldout
+user agent	用户代理	heldout
+
+# 标识符缩写
+id	标识	abbrev
+idx	索引	abbrev
+ptr	指针	abbrev
+buf	缓冲区	abbrev
+cfg	配置	abbrev
+ctx	上下文	abbrev
+req	请求	abbrev
+res	响应	abbrev
+msg	消息	abbrev
+err	错误	abbrev
+val	值	abbrev
+len	长度	abbrev
+min	最小值	abbrev
+max	最大值	abbrev
+avg	平均值	abbrev
+tmp	临时	abbrev
+usr	用户	abbrev
+pwd	密码	abbrev
+auth	鉴权	abbrev
+db	数据库	abbrev
+doc	文档	abbrev
+img	图片	abbrev
+src	源	abbrev
+dst	目标	abbrev
+func	函数	abbrev
+fn	函数	abbrev
+var	变量	abbrev
+arg	参数	abbrev
+attr	属性	abbrev
+elem	元素	abbrev
+btn	按钮	abbrev
+evt	事件	abbrev
+cb	回调	abbrev
+init	初始化	abbrev
+exec	执行	abbrev
+calc	计算	abbrev
+stat	统计	abbrev
+meta	元数据	abbrev
+href	链接地址	abbrev
+json	JSON	abbrev
+xml	XML	abbrev
+html	HTML	abbrev
+sql	SQL	abbrev
+uuid	UUID	abbrev

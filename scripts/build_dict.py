@@ -6,7 +6,12 @@
 """
 
 import csv
+import re
 import sys
+
+TAG = re.compile(r"\[[^\]]{1,10}\]")
+POS = re.compile(r"^[a-z]{1,4}\.(?:\s+[a-z]{1,4}\.)*\s*")
+SEP = re.compile(r"[；;，,、]+")
 
 
 def to_int(v):
@@ -14,6 +19,20 @@ def to_int(v):
         return int(v)
     except (TypeError, ValueError):
         return 0
+
+
+def clean_senses(translation):
+    """ECDICT 的多行释义是字面量 \\n，要替换后再切；剥掉词性与 [计]/[医] 标签，
+    但保留标签后的中文（「用户」「失败」这类 CS 义项都在标签行里）。"""
+    out = []
+    text = translation.replace("\\r\\n", "\n").replace("\\n", "\n").replace("\r\n", "\n")
+    for raw in text.split("\n"):
+        s = POS.sub("", TAG.sub("", raw).strip())
+        for seg in SEP.split(s):
+            seg = seg.strip(" .。")
+            if seg and seg not in out:
+                out.append(seg)
+    return out
 
 
 def main():
@@ -27,10 +46,10 @@ def main():
             if not word or not tr:
                 continue
             rows.append((word, tr, to_int(row.get("frq")), to_int(row.get("bnc"))))
-    # 有词频标注的按 (frq, bnc) 降序排前；无词频的按原顺序排后补足
+    # frq/bnc 是名次（小 = 常用）：升序把常用词排前，无词频的词按原顺序补足
     with_freq = [r for r in rows if r[2] > 0 or r[3] > 0]
     without_freq = [r for r in rows if r[2] == 0 and r[3] == 0]
-    with_freq.sort(key=lambda r: (r[2], r[3]), reverse=True)
+    with_freq.sort(key=lambda r: (r[2], r[3]))
     rows = with_freq + without_freq
 
     seen = set()
@@ -40,8 +59,7 @@ def main():
         if key in seen:
             continue
         seen.add(key)
-        senses = [s.strip() for s in tr.split("\n") if s.strip()]
-        gloss = "；".join(senses[:2])[:100]
+        gloss = "；".join(clean_senses(tr)[:3])[:80]
         if not gloss:
             continue
         out.append(f"{word}\t{gloss}")

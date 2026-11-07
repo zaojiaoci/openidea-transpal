@@ -1,0 +1,435 @@
+# 人工整理的现代术语表（中文<TAB>英文），优先级高于 ECDICT 通用表。
+# 收的是 2005 年那版 ECDICT 术语库没有的词：云原生、可观测性、前端界面、运营指标、AI。
+# 译法要求：短、可直接用于标识符（小写、一到两个词），不写释义。
+# 改动请先过 scripts/bench_dict.py 的 gold 集，避免把已有正确译法改坏。
+
+# 基础词修正（ECDICT 会给出 diskette/uninstalled/monitored 这类错形）
+磁盘	disk
+卸载	uninstall
+监控	monitoring
+
+# 云原生 / 基础设施
+微服务	microservice
+无服务器	serverless
+服务端	server
+边缘计算	edge computing
+容器化	containerize
+编排	orchestration
+编排器	orchestrator
+副本	replica
+分片	shard
+分区	partition
+集群	cluster
+镜像	image
+节点	node
+网关	gateway
+中间件	middleware
+声明式	declarative
+幂等	idempotent
+弹性	elastic
+扩容	scale out
+缩容	scale in
+滚动更新	rolling update
+滚动发布	rolling release
+分库分表	sharding
+热更新	hot update
+冷启动	cold start
+探活	health check
+就绪	readiness
+存活	liveness
+心跳	heartbeat
+握手	handshake
+反向代理	reverse proxy
+正向代理	forward proxy
+连接池	connection pool
+负载均衡	load balancer
+熔断	circuit breaker
+降级	degrade
+限流	rate limit
+限速	rate limit
+退避	backoff
+防抖	debounce
+节流	throttle
+舱壁	bulkhead
+灰度	gray release
+灰度发布	canary release
+蓝绿	blue-green
+蓝绿部署	blue-green deployment
+金丝雀	canary
+白名单	allowlist
+黑名单	blocklist
+租户	tenant
+多租户	multi-tenant
+凭证	credential
+密钥	key
+证书	certificate
+域名	domain
+解析	resolve
+链路	trace
+追踪	tracing
+采样	sampling
+上报	report
+埋点	event tracking
+告警	alert
+指标	metric
+看板	dashboard
+大屏	wallboard
+值班	on-call
+复盘	postmortem
+预案	playbook
+演练	drill
+容灾	disaster recovery
+双活	active-active
+多活	multi-active
+冷备	cold standby
+热备	hot standby
+主从	master-slave
+读写分离	read-write splitting
+快照	snapshot
+回滚	rollback
+回放	replay
+排队	queue
+积压	backlog
+死信	dead letter
+消费	consume
+生产者	producer
+消费者	consumer
+订阅	subscribe
+发布	publish
+推送	push
+拉取	pull
+轮询	poll
+长轮询	long polling
+广播	broadcast
+多播	multicast
+心跳包	heartbeat packet
+网络抖动	jitter
+丢包	packet loss
+带宽	bandwidth
+吞吐量	throughput
+延迟	latency
+抖动	jitter
+
+# 设计模式 / 分布式
+观察者模式	observer pattern
+工厂模式	factory pattern
+单例模式	singleton pattern
+设计模式	design pattern
+状态机	state machine
+分布式锁	distributed lock
+消息队列	message queue
+依赖注入	dependency injection
+面向对象	object-oriented
+函数式	functional
+响应式	reactive
+事件循环	event loop
+子网掩码	subnet mask
+默认网关	default gateway
+校验和	checksum
+数字签名	digital signature
+沙箱	sandbox
+配额	quota
+调度器	scheduler
+无状态	stateless
+有状态	stateful
+最终一致	eventual consistency
+强一致	strong consistency
+共识	consensus
+脑裂	split brain
+仲裁	quorum
+主从复制	master-slave replication
+慢查询	slow query
+执行计划	execution plan
+全表扫描	full table scan
+
+# 编程 / 数据结构
+序列化	serialize
+反序列化	deserialize
+迭代	iteration
+递归	recursion
+遍历	traversal
+剪枝	prune
+回溯	backtrack
+动态规划	dynamic programming
+贪心	greedy
+分治	divide and conquer
+二分查找	binary search
+哈希表	hash table
+链表	linked list
+红黑树	red-black tree
+二叉搜索树	binary search tree
+顶点	vertex
+权重	weight
+时间复杂度	time complexity
+空间复杂度	space complexity
+空指针	null pointer
+越界	out of bounds
+溢出	overflow
+下溢	underflow
+竞态	race condition
+死锁	deadlock
+活锁	livelock
+饥饿	starvation
+原子	atomic
+非阻塞	non-blocking
+阻塞	blocking
+并发	concurrent
+并行	parallel
+协程	coroutine
+线程池	thread pool
+上下文	context
+中间层	middle layer
+钩子	hook
+插槽	slot
+注入	injection
+反射	reflection
+泛型	generic
+模板	template
+宏	macro
+绑定	binding
+重载	overload
+重写	override
+抽象	abstract
+封装	encapsulate
+多态	polymorphism
+接口契约	contract
+存根	stub
+桩	stub
+模拟	mock
+伪造	fake
+夹具	fixture
+断言	assertion
+覆盖率	coverage
+回归测试	regression test
+冒烟测试	smoke test
+端到端	end-to-end
+单步	step over
+断点	breakpoint
+作用域	scope
+闭包	closure
+惰性	lazy
+不可变	immutable
+可变	mutable
+所有权	ownership
+借用	borrow
+生命周期	lifetime
+零拷贝	zero copy
+内存泄漏	memory leak
+垃圾回收	garbage collection
+堆栈	stack trace
+调用栈	call stack
+空值	null
+默认值	default value
+只读	read-only
+可写	writable
+
+# Web / API
+前端	frontend
+后端	backend
+全栈	full stack
+路由	route
+路由表	routing table
+请求头	header
+请求体	body
+状态码	status code
+重定向	redirect
+跨域	cross-origin
+同源	same-origin
+鉴权	authentication
+授权	authorization
+令牌	token
+刷新令牌	refresh token
+会话	session
+Cookie	Cookie
+分页	pagination
+游标	cursor
+偏移量	offset
+限流器	rate limiter
+缓存穿透	cache penetration
+缓存击穿	cache breakdown
+缓存雪崩	cache avalanche
+预热	warm up
+淘汰	evict
+过期	expire
+命中	hit
+未命中	miss
+长连接	long connection
+短连接	short connection
+轮询间隔	poll interval
+订阅者	subscriber
+
+# 界面
+侧边栏	sidebar
+标签页	tab
+标签栏	tab bar
+面包屑	breadcrumb
+导航栏	navbar
+工具栏	toolbar
+状态栏	status bar
+标题栏	title bar
+菜单栏	menu bar
+右键菜单	context menu
+下拉菜单	dropdown
+弹窗	popup
+模态框	modal
+抽屉	drawer
+气泡	popover
+提示	tooltip
+徽标	badge
+头像	avatar
+缩略图	thumbnail
+占位符	placeholder
+复选框	checkbox
+单选框	radio button
+开关	toggle
+滑块	slider
+进度条	progress bar
+加载中	loading
+骨架屏	skeleton
+空状态	empty state
+全屏	fullscreen
+悬浮	hover
+拖拽	drag and drop
+滚动	scroll
+缩放	zoom
+淡入	fade in
+淡出	fade out
+过渡	transition
+深色模式	dark mode
+浅色模式	light mode
+高对比度	high contrast
+无障碍	accessibility
+快捷键	shortcut
+命令面板	command palette
+偏好	preference
+折叠	collapse
+手风琴	accordion
+轮播	carousel
+跑马灯	marquee
+分页器	paginator
+列表项	list item
+卡片	card
+水印	watermark
+遮罩	mask
+蒙层	overlay
+层级	z-index
+内边距	padding
+外边距	margin
+边框	border
+圆角	border radius
+阴影	shadow
+渐变	gradient
+字体族	font family
+行高	line height
+字重	font weight
+
+# 运营 / 数据
+日活	daily active users
+月活	monthly active users
+留存	retention
+流失	churn
+转化	conversion
+漏斗	funnel
+分群	segment
+画像	profile
+归因	attribution
+实验	experiment
+分流	traffic split
+环比	month-over-month
+同比	year-over-year
+峰值	peak
+容量	capacity
+故障	fault
+事故	incident
+恢复	recovery
+明细	detail
+汇总	summary
+维度	dimension
+度量	measure
+口径	definition
+趋势	trend
+预测	forecast
+报表	report
+图表	chart
+仪表盘	dashboard
+
+# 电商 / 业务
+商品	product
+库存	inventory
+订单	order
+退款	refund
+结算	settlement
+对账	reconciliation
+发票	invoice
+物流	logistics
+收货	receive goods
+发货	ship
+签收	deliver
+售后	after-sales
+客服	customer service
+工单	ticket
+评价	review
+评分	rating
+积分	points
+等级	level
+会员	membership
+钱包	wallet
+充值	top up
+提现	withdraw
+转账	transfer
+流水	statement
+账单	bill
+预算	budget
+优惠券	coupon
+折扣	discount
+收货地址	shipping address
+
+# 登录 / 账户
+账号	account
+登出	log out
+登录	log in
+注册	sign up
+注销	deactivate
+找回	reset
+验证码	captcha
+双因素	two-factor
+联系人	contact
+群组	group
+通知	notification
+提醒	reminder
+点赞	like
+收藏	favorite
+分享	share
+转发	repost
+关注	follow
+粉丝	follower
+
+# AI
+提示词	prompt
+提示注入	prompt injection
+微调	fine-tune
+推理	inference
+训练	training
+评估	evaluation
+基准	benchmark
+对齐	alignment
+护栏	guardrail
+幻觉	hallucination
+上下文窗口	context window
+向量	vector
+嵌入	embedding
+检索	retrieval
+检索增强	retrieval augmented
+语料	corpus
+标注	annotation
+智能体	agent
+工具调用	tool call
+多模态	multimodal
+蒸馏	distillation
+量化	quantization
+生成	generation
+思维链	chain of thought
+温度	temperature
+采样参数	sampling parameter
+令牌数	token count
+吞吐	token throughput

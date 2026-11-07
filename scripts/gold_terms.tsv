@@ -1,0 +1,256 @@
+# 离线词典基准集：中文<TAB>期望英文<TAB>类别
+# core=常见编程词；modern=近十年新词；heldout=人工表未收录、用于看泛化；general=日常词
+# 改动词表或构建规则后跑 scripts/bench_dict.py，比较 before/after 命中数。
+配置	config	core
+接口	interface	core
+地址	address	core
+缓存	cache	core
+失败	failed	core
+成功	success	core
+超时	timeout	core
+重试	retry	core
+请求	request	core
+响应	response	core
+服务器	server	core
+客户端	client	core
+数据库	database	core
+字段	field	core
+索引	index	core
+事务	transaction	core
+线程	thread	core
+进程	process	core
+内存	memory	core
+磁盘	disk	core
+网络	network	core
+协议	protocol	core
+端口	port	core
+域名	domain	core
+证书	certificate	core
+密钥	key	core
+加密	encrypt	core
+解密	decrypt	core
+签名	sign	core
+编译	compile	core
+链接	link	core
+加载	load	core
+卸载	uninstall	core
+变量	variable	core
+作用域	scope	core
+闭包	closure	core
+迭代	iteration	core
+递归	recursion	core
+分页	pagination	core
+排序	sort	core
+过滤	filter	core
+校验	verify	core
+解析	parse	core
+编码	encode	core
+解码	decode	core
+上传	upload	core
+下载	download	core
+同步	sync	core
+异步	async	core
+并发	concurrent	core
+阻塞	blocking	core
+副本	replica	core
+分片	shard	core
+集群	cluster	core
+镜像	image	core
+路由	route	core
+网关	gateway	core
+中间件	middleware	core
+容器	container	core
+部署	deploy	core
+迁移	migrate	core
+备份	backup	core
+恢复	recovery	core
+快照	snapshot	core
+日志	log	core
+监控	monitoring	core
+指标	metric	core
+采样	sampling	core
+调试	debug	core
+断点	breakpoint	core
+版本	version	core
+分支	branch	core
+合并	merge	core
+冲突	conflict	core
+提交	commit	core
+仓库	repository	core
+令牌	token	core
+会话	session	core
+重定向	redirect	core
+状态码	status code	core
+跨域	cross-origin	core
+鉴权	authentication	core
+授权	authorization	core
+密码	password	core
+登录	login	core
+注册	register	core
+权限	permission	core
+租户	tenant	core
+
+埋点	event tracking	modern
+日活	daily active users	modern
+月活	monthly active users	modern
+留存	retention	modern
+流失	churn	modern
+转化	conversion	modern
+漏斗	funnel	modern
+归因	attribution	modern
+环比	month-over-month	modern
+同比	year-over-year	modern
+看板	dashboard	modern
+大屏	wallboard	modern
+告警	alert	modern
+链路	trace	modern
+追踪	tracing	modern
+灰度发布	canary release	modern
+蓝绿部署	blue-green deployment	modern
+金丝雀	canary	modern
+限流	rate limit	modern
+熔断	circuit breaker	modern
+降级	degrade	modern
+退避	backoff	modern
+防抖	debounce	modern
+节流	throttle	modern
+幂等	idempotent	modern
+滚动发布	rolling release	modern
+分库分表	sharding	modern
+读写分离	read-write splitting	modern
+回滚	rollback	modern
+序列化	serialize	modern
+反序列化	deserialize	modern
+哈希	hash	modern
+竞态	race condition	modern
+死锁	deadlock	modern
+协程	coroutine	modern
+侧边栏	sidebar	modern
+标签页	tab	modern
+面包屑	breadcrumb	modern
+弹窗	popup	modern
+模态框	modal	modern
+抽屉	drawer	modern
+轮播	carousel	modern
+分页器	paginator	modern
+占位符	placeholder	modern
+复选框	checkbox	modern
+进度条	progress bar	modern
+骨架屏	skeleton	modern
+深色模式	dark mode	modern
+快捷键	shortcut	modern
+命令面板	command palette	modern
+无障碍	accessibility	modern
+提示词	prompt	modern
+微调	fine-tune	modern
+推理	inference	modern
+幻觉	hallucination	modern
+上下文窗口	context window	modern
+嵌入	embedding	modern
+检索增强	retrieval augmented	modern
+智能体	agent	modern
+工具调用	tool call	modern
+多模态	multimodal	modern
+蒸馏	distillation	modern
+量化	quantization	modern
+提示注入	prompt injection	modern
+护栏	guardrail	modern
+对账	reconciliation	modern
+退款	refund	modern
+客服	customer service	modern
+工单	ticket	modern
+充值	top up	modern
+提现	withdraw	modern
+账单	bill	modern
+优惠券	coupon	modern
+
+子网掩码	subnet mask	dist
+默认网关	default gateway	dist
+消息队列	message queue	dist
+分布式锁	distributed lock	dist
+状态机	state machine	dist
+观察者模式	observer pattern	dist
+工厂模式	factory pattern	dist
+单例模式	singleton pattern	dist
+依赖注入	dependency injection	dist
+控制反转	inversion of control	heldout
+面向对象	object-oriented	dist
+函数式	functional	dist
+响应式	reactive	dist
+事件循环	event loop	dist
+尾调用	tail call	heldout
+惰性求值	lazy evaluation	heldout
+模式匹配	pattern matching	heldout
+类型推断	type inference	heldout
+元编程	metaprogramming	heldout
+校验和	checksum	dist
+字节序	byte order	heldout
+大端	big-endian	heldout
+小端	little-endian	heldout
+拥塞控制	congestion control	heldout
+流量控制	flow control	heldout
+三次握手	three-way handshake	heldout
+数字签名	digital signature	dist
+中间人攻击	man-in-the-middle	heldout
+重放攻击	replay attack	heldout
+沙箱	sandbox	dist
+配额	quota	dist
+调度器	scheduler	dist
+亲和性	affinity	heldout
+无状态	stateless	dist
+有状态	stateful	dist
+最终一致	eventual consistency	dist
+强一致	strong consistency	dist
+共识	consensus	dist
+选举	election	heldout
+脑裂	split brain	dist
+仲裁	quorum	dist
+主从复制	master-slave replication	dist
+慢查询	slow query	dist
+执行计划	execution plan	dist
+全表扫描	full table scan	dist
+乐观锁	optimistic lock	heldout
+悲观锁	pessimistic lock	heldout
+事务隔离	transaction isolation	heldout
+脏读	dirty read	heldout
+幻读	phantom read	heldout
+可重复读	repeatable read	heldout
+联合索引	composite index	heldout
+覆盖索引	covering index	heldout
+
+用户	user	general
+账号	account	general
+订单	order	general
+商品	product	general
+库存	inventory	general
+价格	price	general
+折扣	discount	general
+支付	payment	general
+结算	settlement	general
+发票	invoice	general
+物流	logistics	general
+发货	ship	general
+配送	delivery	general
+评价	review	general
+评分	rating	general
+积分	points	general
+会员	membership	general
+钱包	wallet	general
+余额	balance	general
+流水	statement	general
+预算	budget	general
+列表	list	general
+详情	detail	general
+摘要	summary	general
+历史	history	general
+搜索	search	general
+预览	preview	general
+导出	export	general
+导入	import	general
+分享	share	general
+收藏	favorite	general
+评论	comment	general
+通知	notification	general
+联系人	contact	general
+群组	group	general
+点赞	like	general

@@ -1,17 +1,17 @@
 id = "zaojiaoci.transpal"
 name = "TransPal Translate"
-version = "0.1.1"
+version = "0.1.2"
 description = "Translate selected text in place, explain identifiers, generate camelCase names. Free web sources (Youdao/Google) with failover, offline ECDICT dictionary fallback, optional AI (DeepSeek or any OpenAI-compatible endpoint)."
 authors = ["zaojiaoci"]
 license = "MIT"
-change-notes = "0.1.1 — 修复：词典模式下的中文命名不再发起网络请求；翻译缓存按翻译源（AI 模式含端点/模型）区分。Fixes: Chinese naming in dict mode no longer sends text online; translation cache is now separated by source (AI entries include endpoint and model)."
+change-notes = "0.1.2 — 离线词典大升级：ECDICT 数据重烘焙，新增 2 万条兜底表、约 400 条现代术语与约 350 条代码义项；标识符按编程义取词（stringBuffer → 字符串 缓冲区、ctx → 上下文），散文句子仍用通用义；支持复数/词形回原形与多词术语归一（user-agent = user_agent = 用户代理），中文命名可把多词术语拆成 camelCase（蓝绿部署 → blueGreenDeployment）；250 词基准命中率 41% → 92%。有道免费源迁移到 aidemo.youdao.com（旧端点已 302 到 error.html），必需权限相应改为 net:aidemo.youdao.com，升级后会重新请求授权。缓存键区分翻译源并带词典版本，避免升级后回放旧词条。Fixes: rebakes the ECDICT data and adds a 20k-row fallback table, curated modern terms and code-context senses so identifiers get programming meanings while prose keeps general ones; handles plurals and multiword phrases, splits multiword Chinese terms into camelCase, and raises offline coverage from 41% to 92% on a 250-term benchmark. Migrates the free Youdao source to aidemo.youdao.com after the old endpoint began redirecting to error.html, renaming the required capability accordingly; dictionary cache keys now include the version."
 categories = ["tools"]
 engines.openidea = "^1.0"
 wasm = "dist/plugin.wasm"
 activation = ["on-command:*"]
 
 [capabilities]
-required = ["editor.read", "project.read", "net:fanyi.youdao.com", "net:translate.googleapis.com"]
+required = ["editor.read", "project.read", "net:aidemo.youdao.com", "net:translate.googleapis.com"]
 optional = ["editor.write", "net:api.deepseek.com", "net:localhost", "secrets", "storage"]
 
 [[contributes.commands]]

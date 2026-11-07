@@ -4,7 +4,9 @@
 use openidea_plugin::{host, Error, HttpRequest};
 use serde_json::Value;
 
-const YOUDAO_URL: &str = "https://fanyi.youdao.com/translate";
+// fanyi.youdao.com/translate 已 302 到 error.html；aidemo 是同一家仍在服务的
+// 免 key 接口，参数与响应都不同，见 youdao()。
+const YOUDAO_URL: &str = "https://aidemo.youdao.com/trans";
 const GOOGLE_URL: &str = "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t";
 /// 在线源的每次请求超时；熔断决策的度量衡
 const TIMEOUT_MS: u32 = 4000;
@@ -49,8 +51,8 @@ impl WebSrc {
 }
 
 fn youdao(text: &str, to_zh: bool) -> Result<String, Error> {
-    let to = if to_zh { "ZH_CN" } else { "EN" };
-    let body = format!("i={}&from=AUTO&to={}&doctype=json", form_encode(text), to);
+    let to = if to_zh { "zh-CHS" } else { "en" };
+    let body = format!("q={}&from=Auto&to={to}", form_encode(text));
     let mut req =
         HttpRequest::post(YOUDAO_URL, body).header("Content-Type", "application/x-www-form-urlencoded");
     req.timeout_ms = Some(TIMEOUT_MS);
@@ -59,27 +61,36 @@ fn youdao(text: &str, to_zh: bool) -> Result<String, Error> {
         return Err(format!("有道接口返回 {}", resp.status).into());
     }
     let v: Value = serde_json::from_slice(&resp.body).map_err(|e| format!("解析有道响应失败: {e}"))?;
-    let code = v["errorCode"].as_i64().unwrap_or(-1);
-    if code != 0 {
-        return Err(format!("有道接口错误码 {code}").into());
+    parse_youdao(&v)
+}
+
+fn parse_youdao(v: &Value) -> Result<String, Error> {
+    // errorCode 在这里是字符串（"0"），老接口是数字，两种都收
+    let code = v["errorCode"]
+        .as_str()
+        .map(str::to_owned)
+        .or_else(|| v["errorCode"].as_i64().map(|n| n.to_string()))
+        .unwrap_or_else(|| "-1".into());
+    if code != "0" {
+        let msg = v["msg"].as_str().unwrap_or("").trim();
+        return Err(if msg.is_empty() {
+            format!("有道接口错误码 {code}").into()
+        } else {
+            format!("有道接口错误码 {code}：{msg}").into()
+        });
     }
-    // translateResult 是按行分组的数组，行内每段一个 {src, tgt}
-    let mut lines: Vec<String> = Vec::new();
-    if let Some(rows) = v["translateResult"].as_array() {
-        for row in rows {
-            let line: String = row
-                .as_array()
-                .map(|segs| {
-                    segs.iter()
-                        .filter_map(|s| s["tgt"].as_str())
-                        .collect::<Vec<_>>()
-                        .join("")
-                })
-                .unwrap_or_default();
-            lines.push(line);
-        }
-    }
-    let out = lines.join("\n").trim().to_string();
+    // translation 是译文片段数组，长句可能拆成多段
+    let out = v["translation"]
+        .as_array()
+        .map(|segs| {
+            segs.iter()
+                .filter_map(|s| s.as_str())
+                .collect::<Vec<_>>()
+                .join("")
+        })
+        .unwrap_or_default()
+        .trim()
+        .to_string();
     if out.is_empty() {
         return Err("有道接口返回了空内容".into());
     }
@@ -139,15 +150,20 @@ mod tests {
     }
 
     #[test]
-    fn parses_youdao_segments() {
-        let body = serde_json::json!({
-            "errorCode": 0,
-            "translateResult": [[{"src": "poisoned", "tgt": "中毒"}, {"src": "mutex", "tgt": "互斥锁"}]]
-        })
-        .to_string();
-        let v: Value = serde_json::from_str(&body).unwrap();
-        let segs = &v["translateResult"][0];
-        let joined: String = segs.as_array().unwrap().iter().filter_map(|s| s["tgt"].as_str()).collect();
-        assert_eq!(joined, "中毒互斥锁");
+    fn parses_youdao_translation() {
+        let v = serde_json::json!({
+            "errorCode": "0",
+            "translation": ["配置", "接口地址"]
+        });
+        assert_eq!(parse_youdao(&v).unwrap(), "配置接口地址");
+    }
+
+    #[test]
+    fn reports_youdao_error_code_and_message() {
+        let v = serde_json::json!({"errorCode": "411", "msg": "请求频率过快"});
+        assert_eq!(
+            parse_youdao(&v).unwrap_err().to_string(),
+            "有道接口错误码 411：请求频率过快"
+        );
     }
 }
